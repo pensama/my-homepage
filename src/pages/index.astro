@@ -3,6 +3,99 @@ import Layout from '../layouts/Layout.astro';
 ---
 
 <Layout title="ペン様のホームページ">
-	<h1>こんにちは、〇〇です</h1>
-	<p>〇〇〇〇大学の学生です。ここは私のホームページです。</p>
+	<div class="card">
+	<div style="display: flex; align-items: center; gap: 1.5rem;">
+        <img src="/images/Icon.jpg" alt="プロフィール写真" class="Icon-img" />
+        <div class="X-link">
+            <a href="https://x.com/pensama_314" target="_blank" rel="noopener noreferrer">
+                Twitter (X)
+            </a>
+            </div>
+            <div class="YouTube-link">
+            <a href="https://www.youtube.com/channel/UCgxgIMmvZ-m103FXHFsRO4A" target="_blank" rel="noopener noreferrer">
+                Youtube
+            </a>
+        </div>
+    </div>
+			<h1>ペン様</h1>
+        </div>
+    <div class="card">
+        <h1>Currently Working On</h1>
+        <p>基本情報技術者試験</p>
+        <p>TOEIC800↑</p>
+        <p>プログラミング言語学習</p>
+    </div>
+    <div class="card">
+        <h1>参加予定のイベント</h1>
+        <strong>米津玄師 2026 TOUR / GHOST</strong> — 11/11
+        <br>
+        <strong>配信者ハイパーゲーム大会 FINAL</strong> — 11/29
+    </div>
 </Layout>
+<style>
+    .card {
+        background-color: #222630;
+        border-radius: 12px;
+        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+        padding: 2rem;
+    }
+	h1 {
+    font-size: 1.75rem;
+    margin-top: 1rem;
+    margin-bottom: 0;
+}
+	.Icon-img {
+        width: 120px;
+        height: 120px;
+        border-radius: 100%;
+        object-fit: cover;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        flex-shrink: 0;
+    }
+
+/* X (旧Twitter) のリンク設定 */
+.X-link {
+    display: flex;
+    flex-direction: column; /* 縦並びにする */
+    align-items: flex-start; /* ボタンの幅をテキストサイズに合わせる */
+    gap: 0.5rem;
+}
+
+.X-link a {
+    padding: 0.4rem 1rem;
+    border: 1px solid #1D9BF0;
+    border-radius: 999px;
+    color: #1D9BF0;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.X-link a:hover {
+    background-color: #1D9BF0;
+    color: #fff;
+}
+
+/* YouTube のリンク設定 */
+.YouTube-link {
+    display: flex;
+    flex-direction: column; /* 縦並びにする */
+    align-items: flex-start; /* ボタンの幅をテキストサイズに合わせる */
+    gap: 0.5rem;
+}
+
+.YouTube-link a {
+    padding: 0.4rem 1rem;
+    border: 1px solid #FF0000;
+    border-radius: 999px;
+    color: #FF0000;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.YouTube-link a:hover {
+    background-color: #FF0000;
+    color: #fff;
+}
+</style>

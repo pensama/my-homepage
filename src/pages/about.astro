@@ -3,48 +3,117 @@ import Layout from '../layouts/Layout.astro';
 ---
 
 <Layout title="About | ペン様のホームページ">
-	<img src="/images/Icon.jpg" alt="プロフィール写真" class="Icon-img" />
-	<h1>自己紹介</h1>
-	<p>〇〇〇〇大学の〇年生です。最近は〇〇にハマっています。</p>
+    <div class="card">
+        <div style="display: flex; align-items: center; gap: 1.5rem;">
+
+        <h1>自己紹介</h1>
+    </div>
+    </div>
+
+    <div class="card">
+        <h3>略歴</h3>
+        <p>2007/11/30 誕生</p>
+        <p>2020/3 小学校卒業</p>
+        <p>2023/3 中学校卒業</p>
+        <p>2026/3 高校卒業</p>
+        <p>2026/4 電気通信大学Ⅱ類入学</p>
+    </div>
+
+    <div class="card">
+        <h3>ハンドルネームの由来</h3>
+        <img src="/images/handle.jpg" alt="プロフィール写真" class="handle-img" />
+        <p>ザビエルの落書きが由来</p>
+            <p>正確に言うとザビエルの落書きから由来してMiiを作成するときにザビエルを参考にして作成し、Nintendo Switchのアカウント名をペンギン由来のペン様にしたこと
+                <s>(そのMiiは使用しなかった)</s>
+        </p>
+       
+    </div>
+	 
+        <div class="card">
+            <h3>
+                趣味
+            </h3>
+            <ul>
+                <li>
+                    ゲーム
+                </li>
+                <p>私を構成する9つのゲーム</p>
+                <a href="https://my9games.com/s/51d00a7c5a924261" target="_blank">
+                    <img src="/images/my9game.png" alt="プロフィール写真" class="my9game-img" />
+                    </a>
+                     <p>任天堂系のゲームを小さいころからたくさんやっていた</p>
+                     <p>家にパソコンがなかったためPCゲームにはあまりなじみがない</p>
+                     <br>
+                <li>
+                    漫画
+                </li>
+                <p>漫画はアプリで読むタイプだけど、バイトをしてお金に余裕ができ始めた今は紙で集めたい欲がある</p>
+                <p>王道の人気作も結構読むが量産型のなろう系も頭を使わず読めるので好き<s>(漫画アプリがたくさん入っているせいでなろう系は新しい漫画を読んでるのか同じ漫画を内容を忘れて読んでるのかわからなくなる時がある)</s></p>
+                <p>ジャンルは結構幅広く見るけどグロっぽいのは少し抵抗あり(十字架のろくにん等)</p>
+                <br>
+                <li>
+                    音楽
+                </li>
+                <p>米津玄師を主に聴く、サカナクションも有名な奴は聴いてる。</p>
+                <p>BUMPとかRADのような10年代の邦ロックを開拓していきたい</p>
+            </ul>
+        </div>
 </Layout>
 
-<div class="social-links">
-	<a href="https://x.com/pensama_314" target="_blank" rel="noopener noreferrer">
-		Twitter (X)
-	</a>
-	<a href="https://www.youtube.com/channel/UCgxgIMmvZ-m103FXHFsRO4A" target="_blank" rel="noopener noreferrer">
-		Youtube
-	</a>
-</div>
-
 <style>
-	.Icon-img {
-		width: 120px;
-		height: 120px;
-		border-radius: 100%;
-		object-fit: cover;
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-	}
-    .social-links {
-    display: flex;
-    gap: 0.75rem;
-    margin-top: 1rem;
-}
+    .card {
+        background-color: #222630;
+        border-radius: 12px;
+        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+        padding: 2rem;
+    }
 
-.social-links a {
-    padding: 0.4rem 1rem;
-    border: 1px solid #4a90d9;
-    border-radius: 999px;
-    color: #4a90d9;
-    text-decoration: none;
-    font-size: 0.9rem;
-    transition:
-        background-color 0.2s ease,
-        color 0.2s ease;
+    .Icon-img {
+        width: 120px;
+        height: 120px;
+        border-radius: 100%;
+        object-fit: cover;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        flex-shrink: 0;
+    }
+    .handle-img {
+        width: 120px;
+        height: 120px;
+        border-radius: 100%;
+        object-fit: cover;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    .my9game-img {
+        width: 170px;
+        height: 200px;
+        object-fit: contain;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        border: 3px solid transparent; 
+    box-sizing: border-box;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    
+    .my9game-img:hover {
+    border-color: #4a90d9;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); 
+    transform: translateY(-4px);
 }
+    h1 {
+        font-size: 1.75rem;
+        margin-top: 1rem;
+        margin-bottom: 0;
+    }
 
-.social-links a:hover {
-    background-color: #4a90d9;
-    color: #fff;
-}
+    h3 {
+        font-size: 1.1rem;
+        margin-top: 0;
+        margin-bottom: 0.5rem;
+    }
+
+    p {
+        margin: 0.3rem 0;
+        line-height: 180%;
+
+    }
+
 </style>
