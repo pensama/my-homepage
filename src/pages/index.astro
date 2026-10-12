@@ -1,16 +1,18 @@
 ---
 import Layout from '../layouts/Layout.astro';
 
-// 日時は日本時間(+09:00)で書く。開演時間がわかったら "T18:00:00+09:00" のように変える
+// start は日本時間(+09:00)で書く。label は start が何の時刻か (開演・開場など)
 const events = [
-    { name: '米津玄師 2026 TOUR / GHOST', start: '2026-11-11T00:00:00+09:00' },
-    { name: '配信者ハイパーゲーム大会 FINAL', start: '2026-11-29T00:00:00+09:00' },
+    { name: '米津玄師 2026 TOUR / GHOST', start: '2026-11-11T18:30:00+09:00', label: '開演' },
+    { name: '配信者ハイパーゲーム大会 FINAL', start: '2026-11-29T11:00:00+09:00', label: '開場' },
 ];
 
 const formatDate = new Intl.DateTimeFormat('ja-JP', {
     timeZone: 'Asia/Tokyo',
     month: 'numeric',
     day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
 });
 ---
 
@@ -42,7 +44,7 @@ const formatDate = new Intl.DateTimeFormat('ja-JP', {
         <ul class="events">
             {events.map((event) => (
                 <li>
-                    <strong>{event.name}</strong> — {formatDate.format(new Date(event.start))}
+                    <strong>{event.name}</strong> — {formatDate.format(new Date(event.start))} {event.label}
                     <span class="countdown" data-start={event.start}></span>
                 </li>
             ))}
