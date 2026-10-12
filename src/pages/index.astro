@@ -1,5 +1,17 @@
 ---
 import Layout from '../layouts/Layout.astro';
+
+// 日時は日本時間(+09:00)で書く。開演時間がわかったら "T18:00:00+09:00" のように変える
+const events = [
+    { name: '米津玄師 2026 TOUR / GHOST', start: '2026-11-11T00:00:00+09:00' },
+    { name: '配信者ハイパーゲーム大会 FINAL', start: '2026-11-29T00:00:00+09:00' },
+];
+
+const formatDate = new Intl.DateTimeFormat('ja-JP', {
+    timeZone: 'Asia/Tokyo',
+    month: 'numeric',
+    day: 'numeric',
+});
 ---
 
 <Layout title="ペン様のホームページ">
@@ -27,11 +39,49 @@ import Layout from '../layouts/Layout.astro';
     </div>
     <div class="card">
         <h1>参加予定のイベント</h1>
-        <strong>米津玄師 2026 TOUR / GHOST</strong> — 11/11
-        <br>
-        <strong>配信者ハイパーゲーム大会 FINAL</strong> — 11/29
+        <ul class="events">
+            {events.map((event) => (
+                <li>
+                    <strong>{event.name}</strong> — {formatDate.format(new Date(event.start))}
+                    <span class="countdown" data-start={event.start}></span>
+                </li>
+            ))}
+        </ul>
     </div>
 </Layout>
+
+<script>
+    // 日本時間での日付 (YYYY-MM-DD) を比べて「当日かどうか」を判定する
+    const jstDay = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Tokyo' });
+    const pad = (n: number) => String(n).padStart(2, '0');
+
+    const countdowns = document.querySelectorAll<HTMLElement>('.countdown');
+
+    function update() {
+        const now = Date.now();
+        for (const el of countdowns) {
+            const start = Date.parse(el.dataset.start!);
+            const diff = start - now;
+            if (diff > 0) {
+                const s = Math.ceil(diff / 1000);
+                const days = Math.floor(s / 86400);
+                const hours = Math.floor(s / 3600) % 24;
+                const minutes = Math.floor(s / 60) % 60;
+                el.textContent = `あと ${days}日 ${pad(hours)}時間 ${pad(minutes)}分 ${pad(s % 60)}秒`;
+                el.dataset.state = 'upcoming';
+            } else if (jstDay.format(start) === jstDay.format(now)) {
+                el.textContent = '本日開催！';
+                el.dataset.state = 'today';
+            } else {
+                el.textContent = '終了しました';
+                el.dataset.state = 'ended';
+            }
+        }
+    }
+
+    update();
+    setInterval(update, 1000);
+</script>
 <style>
     .card {
         background-color: #222630;
@@ -97,5 +147,31 @@ import Layout from '../layouts/Layout.astro';
 .YouTube-link a:hover {
     background-color: #FF0000;
     color: #fff;
+}
+
+/* イベントのカウントダウン */
+.events {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.countdown {
+    display: block;
+    font-size: 0.95rem;
+    color: #4a90d9;
+    font-variant-numeric: tabular-nums;
+}
+
+.countdown[data-state="today"] {
+    color: #f5a623;
+    font-weight: 700;
+}
+
+.countdown[data-state="ended"] {
+    color: #888;
 }
 </style>
