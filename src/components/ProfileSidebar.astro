@@ -1,0 +1,135 @@
+---
+// GitHub のプロフィールページ風の左側の自己紹介欄
+import Icon from './Icon.astro';
+---
+
+<aside class="profile">
+    <div class="profile-head">
+        <img class="avatar" src="/images/Icon.jpg" alt="ペン様のアイコン" width="296" height="296" />
+        <h1 class="names">
+            <span class="name">ペン様</span>
+            <span class="handle">pensama</span>
+        </h1>
+    </div>
+    <p class="bio">電通大 Ⅱ類 1年。基本情報と TOEIC を勉強中。</p>
+    <a class="follow" href="https://x.com/pensama_314" target="_blank" rel="noopener noreferrer">
+        <Icon name="x" size={14} /> でフォローする
+    </a>
+    <ul class="meta">
+        <li><Icon name="mortar-board" />電気通信大学 Ⅱ類</li>
+        <li>
+            <Icon name="x" />
+            <a href="https://x.com/pensama_314" target="_blank" rel="noopener noreferrer">@pensama_314</a>
+        </li>
+        <li>
+            <Icon name="youtube" />
+            <a href="https://www.youtube.com/channel/UCgxgIMmvZ-m103FXHFsRO4A" target="_blank" rel="noopener noreferrer">YouTube</a>
+        </li>
+        <li>
+            <Icon name="mark-github" />
+            <a href="https://github.com/pensama" target="_blank" rel="noopener noreferrer">pensama</a>
+        </li>
+    </ul>
+</aside>
+
+<style>
+    .avatar {
+        display: block;
+        width: 100%;
+        height: auto;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        border: 1px solid var(--border);
+        object-fit: cover;
+    }
+
+    .names {
+        display: flex;
+        flex-direction: column;
+        margin: 16px 0 0;
+        line-height: 1.25;
+    }
+
+    .name {
+        font-size: 24px;
+        font-weight: 700;
+    }
+
+    .handle {
+        font-size: 20px;
+        font-weight: 400;
+        color: var(--fg-muted);
+    }
+
+    .bio {
+        margin: 16px 0;
+        font-size: 16px;
+    }
+
+    .follow {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 16px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background-color: var(--bg-muted);
+        color: var(--fg);
+        font-size: 14px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .follow:hover {
+        background-color: #262c36;
+        border-color: #8b949e;
+        text-decoration: none;
+    }
+
+    .meta {
+        list-style: none;
+        margin: 16px 0 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        font-size: 14px;
+    }
+
+    .meta li {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .meta :global(.icon) {
+        color: var(--fg-muted);
+    }
+
+    .meta a {
+        color: var(--fg);
+    }
+
+    .meta a:hover {
+        color: var(--accent);
+    }
+
+    /* スマホではアイコンを小さくして名前と横に並べる */
+    @media (max-width: 767px) {
+        .profile-head {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .avatar {
+            width: 88px;
+        }
+
+        .names {
+            margin: 0;
+        }
+    }
+</style>

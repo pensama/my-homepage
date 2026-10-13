@@ -1,0 +1,220 @@
+---
+// イベントまでの残り時間をデジタル時計風に表示する
+import Icon from './Icon.astro';
+
+interface Props {
+    // start は日本時間(+09:00)の日時。label は start が何の時刻か (開演・開場など)
+    events: { name: string; start: string; label: string }[];
+}
+
+const { events } = Astro.props;
+
+const formatDate = new Intl.DateTimeFormat('ja-JP', {
+    timeZone: 'Asia/Tokyo',
+    month: 'numeric',
+    day: 'numeric',
+    weekday: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+});
+---
+
+<ul class="events">
+    {events.map((event) => (
+        <li class="event box" data-start={event.start}>
+            <div class="event-head">
+                <Icon name="calendar" />
+                <div>
+                    <strong class="event-name">{event.name}</strong>
+                    <span class="event-date">{formatDate.format(new Date(event.start))} {event.label}</span>
+                </div>
+            </div>
+            <div class="clock" role="timer" aria-label="カウントダウン">
+                {['DAYS', 'HRS', 'MIN', 'SEC'].map((unit, i) => (
+                    <>
+                        {i > 0 && <span class="colon" aria-hidden="true">:</span>}
+                        <span class="unit" aria-hidden="true">
+                            <span class="digits" data-ghost="88">--</span>
+                            <span class="unit-label">{unit}</span>
+                        </span>
+                    </>
+                ))}
+            </div>
+            <p class="event-status"></p>
+        </li>
+    ))}
+</ul>
+
+<script>
+    // 日本時間での日付 (YYYY-MM-DD) を比べて「当日かどうか」を判定する
+    const jstDay = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Tokyo' });
+    const pad = (n: number) => String(n).padStart(2, '0');
+
+    const events = document.querySelectorAll<HTMLElement>('.event');
+
+    function update() {
+        const now = Date.now();
+        for (const event of events) {
+            const start = Date.parse(event.dataset.start!);
+            const s = Math.ceil((start - now) / 1000);
+            let parts: string[];
+            let label: string;
+            let status = '';
+            if (s > 0) {
+                const [d, h, m, sec] = [Math.floor(s / 86400), Math.floor(s / 3600) % 24, Math.floor(s / 60) % 60, s % 60];
+                parts = [d, h, m, sec].map(pad);
+                label = `あと${d}日${h}時間${m}分${sec}秒`;
+                event.dataset.state = 'upcoming';
+            } else if (jstDay.format(start) === jstDay.format(now)) {
+                parts = ['00', '00', '00', '00'];
+                label = status = '本日開催！';
+                event.dataset.state = 'today';
+            } else {
+                parts = ['--', '--', '--', '--'];
+                label = status = '終了しました';
+                event.dataset.state = 'ended';
+            }
+            // コロンを1秒ごとに点滅させる
+            event.dataset.tick = String(Math.abs(s) % 2);
+            event.querySelectorAll<HTMLElement>('.digits').forEach((el, i) => {
+                el.textContent = parts[i];
+                // 消えているセグメント (薄い「8」) を数字の後ろに敷く
+                el.dataset.ghost = '8'.repeat(parts[i].length);
+            });
+            event.querySelector('.clock')!.setAttribute('aria-label', label);
+            event.querySelector('.event-status')!.textContent = status;
+        }
+    }
+
+    update();
+    setInterval(update, 1000);
+</script>
+
+<style>
+    @font-face {
+        font-family: "DSEG7 Classic";
+        src: url("/fonts/DSEG7Classic-Bold.woff2") format("woff2");
+        font-weight: 700;
+        font-display: swap;
+    }
+
+    .events {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 16px;
+    }
+
+    .event {
+        --led: var(--success);
+        --led-glow: rgba(63, 185, 80, 0.5);
+        container-type: inline-size;
+        display: flex;
+        flex-direction: column;
+        padding: 16px;
+    }
+
+    .event[data-state="today"] {
+        --led: var(--attention);
+        --led-glow: rgba(210, 153, 34, 0.55);
+    }
+
+    .event[data-state="ended"] {
+        --led: #6e7681;
+        --led-glow: transparent;
+    }
+
+    .event-head {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    .event-head :global(.icon) {
+        margin-top: 4px;
+        color: var(--fg-muted);
+    }
+
+    .event-name {
+        display: block;
+        font-size: 15px;
+        line-height: 1.4;
+    }
+
+    .event-date {
+        font-size: 13px;
+        color: var(--fg-muted);
+    }
+
+    .clock {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        gap: 0.3em;
+        /* イベント名が2行になっても、横に並んだ時計の高さをそろえる */
+        margin-top: auto;
+        padding: 0.8rem 0.5rem 0.6rem;
+        background-color: var(--bg-inset);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        font-size: clamp(1.2rem, 9cqi, 2rem);
+        color: var(--led);
+    }
+
+    .unit {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.45rem;
+    }
+
+    .digits,
+    .colon {
+        font-family: "DSEG7 Classic", monospace;
+        font-weight: 700;
+        line-height: 1;
+        text-shadow: 0 0 8px var(--led-glow);
+    }
+
+    .digits {
+        position: relative;
+        z-index: 0;
+    }
+
+    .digits::before {
+        content: attr(data-ghost);
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        opacity: 0.1;
+        text-shadow: none;
+    }
+
+    .colon {
+        transition: opacity 0.15s ease;
+    }
+
+    .event[data-state="upcoming"][data-tick="1"] .colon {
+        opacity: 0.25;
+    }
+
+    .unit-label {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        letter-spacing: 0.15em;
+        color: var(--fg-muted);
+    }
+
+    .event-status {
+        margin: 8px 0 0;
+        text-align: center;
+        font-weight: 700;
+        color: var(--led);
+    }
+
+    .event-status:empty {
+        display: none;
+    }
+</style>

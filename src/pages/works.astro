@@ -1,15 +1,89 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Icon from '../components/Icon.astro';
+
+// 制作物。GitHub のリポジトリ一覧風に並べる (url がなければ名前はリンクにしない)
+const works = [
+    {
+        name: 'my-homepage',
+        title: 'このホームページ',
+        description: '随時更新予定',
+        url: 'https://github.com/pensama/my-homepage',
+        language: { name: 'Astro', color: '#ff5a03' },
+    },
+];
 ---
 
 <Layout title="Works | ペン様のホームページ">
-	<h1>制作物</h1>
-
-	<ul>
-		<li>
-			<strong>このホームページ</strong> — 随時更新予定
-		</li>
-
-	</ul>
-	<h2>More to come...</h2>
+    <section>
+        <h2 class="section-title"><Icon name="repo" /> 制作物</h2>
+        <ul class="repos">
+            {works.map((work) => (
+                <li>
+                    <div class="repo-head">
+                        {work.url ? (
+                            <a class="repo-name" href={work.url} target="_blank" rel="noopener noreferrer">{work.name}</a>
+                        ) : (
+                            <span class="repo-name">{work.name}</span>
+                        )}
+                        <span class="label">Public</span>
+                    </div>
+                    <p class="repo-desc"><strong>{work.title}</strong> — {work.description}</p>
+                    <p class="repo-meta"><span class="dot" style={`--c: ${work.language.color}`}></span>{work.language.name}</p>
+                </li>
+            ))}
+        </ul>
+        <p class="more">More to come...</p>
+    </section>
 </Layout>
+
+<style>
+    .repos {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        border-top: 1px solid var(--border);
+    }
+
+    .repos li {
+        padding: 24px 0;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .repo-head {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .repo-name {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--accent);
+    }
+
+    .repo-desc {
+        margin: 8px 0 12px;
+        font-size: 14px;
+        color: var(--fg-muted);
+    }
+
+    .repo-desc strong {
+        color: var(--fg);
+    }
+
+    .repo-meta {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin: 0;
+        font-size: 12px;
+        color: var(--fg-muted);
+    }
+
+    .more {
+        margin: 24px 0 0;
+        font-family: var(--font-mono);
+        color: var(--fg-muted);
+    }
+</style>

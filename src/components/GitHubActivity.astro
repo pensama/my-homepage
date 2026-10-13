@@ -9,17 +9,19 @@ const { user } = Astro.props;
 ---
 
 <div class="gh" data-user={user}>
-    <p class="gh-total">読み込み中…</p>
-    <div class="gh-scroll">
-        <div class="gh-graph" role="img" aria-label="GitHubのコントリビューショングラフ"></div>
-    </div>
-    <div class="gh-footer">
-        <a href={`https://github.com/${user}`} target="_blank" rel="noopener noreferrer">@{user}</a>
-        <span class="gh-legend" aria-hidden="true">
-            Less
-            {[0, 1, 2, 3, 4].map((level) => <span class="gh-cell" data-level={level}></span>)}
-            More
-        </span>
+    <h2 class="gh-total section-title">読み込み中…</h2>
+    <div class="gh-box box">
+        <div class="gh-scroll">
+            <div class="gh-graph" role="img" aria-label="GitHubのコントリビューショングラフ"></div>
+        </div>
+        <div class="gh-footer">
+            <a href={`https://github.com/${user}`} target="_blank" rel="noopener noreferrer">@{user} on GitHub</a>
+            <span class="gh-legend" aria-hidden="true">
+                Less
+                {[0, 1, 2, 3, 4].map((level) => <span class="gh-cell" data-level={level}></span>)}
+                More
+            </span>
+        </div>
     </div>
 </div>
 
@@ -104,25 +106,22 @@ const { user } = Astro.props;
 
 <style>
     .gh {
-        --gap: 2px;
+        --gap: 3px;
         --label: 1.25rem;
-        /* カード幅いっぱいに53週を並べる。狭い画面では10pxで止めて横スクロール */
+        /* 枠の幅いっぱいに53週を並べる。狭い画面では10pxで止めて横スクロール */
         --cell: max(10px, (100cqi - var(--label) - 53 * var(--gap)) / 53);
-        container-type: inline-size;
-        margin-top: 1rem;
-    }
-
-    .gh-total {
-        margin: 0 0 0.75rem;
-        font-size: 0.95rem;
     }
 
     .gh-total :global(strong) {
-        font-size: 1.15rem;
-        color: #39d353;
+        color: var(--success, #3fb950);
+    }
+
+    .gh-box {
+        padding: 16px 16px 12px;
     }
 
     .gh-scroll {
+        container-type: inline-size;
         overflow-x: auto;
         padding-bottom: 0.25rem;
     }
@@ -135,7 +134,7 @@ const { user } = Astro.props;
         width: max-content;
         font-size: 0.7rem;
         line-height: 1;
-        color: #7c859a;
+        color: var(--fg-muted, #9198a1);
     }
 
     .gh-graph :global(.gh-month) {
@@ -147,8 +146,8 @@ const { user } = Astro.props;
         position: sticky;
         left: 0;
         z-index: 1;
-        background-color: #222630;
-        box-shadow: var(--gap) 0 0 #222630;
+        background-color: var(--bg, #0d1117);
+        box-shadow: var(--gap) 0 0 var(--bg, #0d1117);
     }
 
     .gh-graph :global(.gh-weekday) {
@@ -160,8 +159,8 @@ const { user } = Astro.props;
 
     .gh :global(.gh-cell) {
         border-radius: 2px;
-        background-color: #161b22;
-        outline: 1px solid rgba(255, 255, 255, 0.04);
+        background-color: #151b23;
+        outline: 1px solid rgba(255, 255, 255, 0.05);
         outline-offset: -1px;
     }
 
@@ -191,21 +190,20 @@ const { user } = Astro.props;
     }
 
     .gh-footer a {
-        color: #4a90d9;
-        text-decoration: none;
-        font-size: 0.9rem;
+        font-size: 12px;
+        color: var(--fg-muted, #9198a1);
     }
 
     .gh-footer a:hover {
-        text-decoration: underline;
+        color: var(--accent, #4493f8);
     }
 
     .gh-legend {
         display: flex;
         align-items: center;
         gap: 3px;
-        font-size: 0.7rem;
-        color: #7c859a;
+        font-size: 12px;
+        color: var(--fg-muted, #9198a1);
     }
 
     .gh-legend .gh-cell {
