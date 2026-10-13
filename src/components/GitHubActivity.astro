@@ -1,0 +1,223 @@
+---
+// GitHub の草 (コントリビューショングラフ)
+// データはページを開いたときにブラウザから github-contributions-api.jogruber.de を呼んで取ってくる
+interface Props {
+    user: string;
+}
+
+const { user } = Astro.props;
+---
+
+<div class="gh" data-user={user}>
+    <p class="gh-total">読み込み中…</p>
+    <div class="gh-scroll">
+        <div class="gh-graph" role="img" aria-label="GitHubのコントリビューショングラフ"></div>
+    </div>
+    <div class="gh-footer">
+        <a href={`https://github.com/${user}`} target="_blank" rel="noopener noreferrer">@{user}</a>
+        <span class="gh-legend" aria-hidden="true">
+            Less
+            {[0, 1, 2, 3, 4].map((level) => <span class="gh-cell" data-level={level}></span>)}
+            More
+        </span>
+    </div>
+</div>
+
+<script>
+    type Day = { date: string; count: number; level: number };
+
+    const DAY = 86400000;
+    const toKey = (t: number) => new Date(t).toISOString().slice(0, 10);
+    const toLabel = (key: string) => `${Number(key.slice(5, 7))}/${Number(key.slice(8))}`;
+
+    function el(className: string, row: number, col: number, text = '') {
+        const span = document.createElement('span');
+        span.className = className;
+        span.style.gridArea = `${row} / ${col}`;
+        span.textContent = text;
+        return span;
+    }
+
+    // 今日の日付 (日本時間)。以降の日付計算はすべて UTC の 0時で行う
+    const today = Date.parse(new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Tokyo' }).format(new Date()));
+
+    for (const root of document.querySelectorAll<HTMLElement>('.gh')) {
+        const graph = root.querySelector<HTMLElement>('.gh-graph')!;
+        const total = root.querySelector<HTMLElement>('.gh-total')!;
+
+        // 1行目は月、1列目は曜日のラベル。曜日の列は横スクロールしても左に残す
+        const weekdays = el('gh-weekdays', 1, 1);
+        weekdays.style.gridArea = '1 / 1 / 9 / 2';
+        graph.append(weekdays, el('gh-weekday', 3, 1, '月'), el('gh-weekday', 5, 1, '水'), el('gh-weekday', 7, 1, '金'));
+
+        // 53週分のマスを日曜始まりで先に並べておき、データが届いたら色を付ける
+        const first = today - (52 * 7 + new Date(today).getUTCDay()) * DAY;
+        const cells = new Map<string, HTMLElement>();
+        let lastMonth: HTMLElement | null = null;
+        let lastMonthCol = 0;
+        for (let t = first, i = 0; t <= today; t += DAY, i++) {
+            const date = new Date(t);
+            const col = Math.floor(i / 7) + 2;
+            if (date.getUTCDay() === 0 && (i === 0 || date.getUTCDate() <= 7)) {
+                // 月の名前が重ならないよう、近すぎる前のラベルは消す
+                if (lastMonth && col - lastMonthCol < 3) lastMonth.remove();
+                lastMonth = el('gh-month', 1, col, `${date.getUTCMonth() + 1}月`);
+                lastMonthCol = col;
+                graph.append(lastMonth);
+            }
+            const key = toKey(t);
+            const cell = el('gh-cell', date.getUTCDay() + 2, col);
+            cell.dataset.level = '0';
+            cell.title = toLabel(key);
+            graph.append(cell);
+            cells.set(key, cell);
+        }
+
+        // スマホなどで横スクロールになるときは、最新の週が見えるようにする
+        const scroll = root.querySelector<HTMLElement>('.gh-scroll')!;
+        scroll.scrollLeft = scroll.scrollWidth;
+
+        fetch(`https://github-contributions-api.jogruber.de/v4/${root.dataset.user}?y=last`)
+            .then((res) => {
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                return res.json() as Promise<{ contributions: Day[] }>;
+            })
+            .then(({ contributions }) => {
+                let sum = 0;
+                for (const { date, count, level } of contributions) {
+                    const cell = cells.get(date);
+                    if (!cell) continue;
+                    sum += count;
+                    cell.dataset.level = String(level);
+                    cell.title = `${toLabel(date)}: ${count}件`;
+                }
+                const strong = document.createElement('strong');
+                strong.textContent = String(sum);
+                total.replaceChildren('過去1年間で ', strong, ' contributions');
+                graph.setAttribute('aria-label', `過去1年間のGitHubのコントリビューションは${sum}件`);
+            })
+            .catch(() => {
+                total.textContent = 'GitHubの記録を読み込めませんでした';
+            });
+    }
+</script>
+
+<style>
+    .gh {
+        --gap: 2px;
+        --label: 1.25rem;
+        /* カード幅いっぱいに53週を並べる。狭い画面では10pxで止めて横スクロール */
+        --cell: max(10px, (100cqi - var(--label) - 53 * var(--gap)) / 53);
+        container-type: inline-size;
+        margin-top: 1rem;
+    }
+
+    .gh-total {
+        margin: 0 0 0.75rem;
+        font-size: 0.95rem;
+    }
+
+    .gh-total :global(strong) {
+        font-size: 1.15rem;
+        color: #39d353;
+    }
+
+    .gh-scroll {
+        overflow-x: auto;
+        padding-bottom: 0.25rem;
+    }
+
+    .gh-graph {
+        display: grid;
+        grid-template-columns: var(--label) repeat(53, var(--cell));
+        grid-template-rows: auto repeat(7, var(--cell));
+        gap: var(--gap);
+        width: max-content;
+        font-size: 0.7rem;
+        line-height: 1;
+        color: #7c859a;
+    }
+
+    .gh-graph :global(.gh-month) {
+        white-space: nowrap;
+        padding-bottom: 0.3rem;
+    }
+
+    .gh-graph :global(.gh-weekdays) {
+        position: sticky;
+        left: 0;
+        z-index: 1;
+        background-color: #222630;
+        box-shadow: var(--gap) 0 0 #222630;
+    }
+
+    .gh-graph :global(.gh-weekday) {
+        position: sticky;
+        left: 0;
+        z-index: 2;
+        align-self: center;
+    }
+
+    .gh :global(.gh-cell) {
+        border-radius: 2px;
+        background-color: #161b22;
+        outline: 1px solid rgba(255, 255, 255, 0.04);
+        outline-offset: -1px;
+    }
+
+    .gh :global(.gh-cell[data-level="1"]) {
+        background-color: #0e4429;
+    }
+
+    .gh :global(.gh-cell[data-level="2"]) {
+        background-color: #006d32;
+    }
+
+    .gh :global(.gh-cell[data-level="3"]) {
+        background-color: #26a641;
+    }
+
+    .gh :global(.gh-cell[data-level="4"]) {
+        background-color: #39d353;
+    }
+
+    .gh-footer {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.5rem 1rem;
+        margin-top: 0.5rem;
+    }
+
+    .gh-footer a {
+        color: #4a90d9;
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+
+    .gh-footer a:hover {
+        text-decoration: underline;
+    }
+
+    .gh-legend {
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        font-size: 0.7rem;
+        color: #7c859a;
+    }
+
+    .gh-legend .gh-cell {
+        width: 10px;
+        height: 10px;
+    }
+
+    .gh-legend .gh-cell:first-of-type {
+        margin-left: 0.25rem;
+    }
+
+    .gh-legend .gh-cell:last-of-type {
+        margin-right: 0.25rem;
+    }
+</style>

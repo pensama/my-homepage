@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import GitHubActivity from '../components/GitHubActivity.astro';
 
 // start は日本時間(+09:00)で書く。label は start が何の時刻か (開演・開場など)
 const events = [
@@ -39,6 +40,10 @@ const formatDate = new Intl.DateTimeFormat('ja-JP', {
         <p>基本情報技術者試験</p>
         <p>TOEIC800↑</p>
         <p>プログラミング言語学習</p>
+    </div>
+    <div class="card">
+        <h1>GitHub Activity</h1>
+        <GitHubActivity user="pensama" />
     </div>
     <div class="card">
         <h1>参加予定のイベント</h1>
