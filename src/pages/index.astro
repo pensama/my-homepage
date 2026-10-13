@@ -1,6 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import EventCountdown from '../components/EventCountdown.astro';
 import GitHubActivity from '../components/GitHubActivity.astro';
+import Icon from '../components/Icon.astro';
 
 // start は日本時間(+09:00)で書く。label は start が何の時刻か (開演・開場など)
 const events = [
@@ -8,293 +10,166 @@ const events = [
     { name: '配信者ハイパーゲーム大会 FINAL', start: '2026-11-29T11:00:00+09:00', label: '開場' },
 ];
 
-const formatDate = new Intl.DateTimeFormat('ja-JP', {
-    timeZone: 'Asia/Tokyo',
-    month: 'numeric',
-    day: 'numeric',
-    weekday: 'short',
-    hour: '2-digit',
-    minute: '2-digit',
-});
+// Currently Working On。GitHub のピン留めリポジトリ風に並べる (name はカードの見出し、color は丸の色)
+const goals = [
+    { name: 'fe-exam', title: '基本情報技術者試験', color: '#3fb950' },
+    { name: 'toeic-800', title: 'TOEIC800↑', color: '#d29922' },
+    { name: 'learn-programming', title: 'プログラミング言語学習', color: '#4493f8' },
+];
+
+const badges = [
+    { key: 'built with', value: 'Astro', color: '#bc52ee' },
+    { key: 'hosted on', value: 'Vercel', color: '#000000' },
+    { key: 'studying', value: '基本情報', color: '#2f81f7' },
+    { key: 'TOEIC', value: '→ 800', color: '#bb8009' },
+];
 ---
 
 <Layout title="ペン様のホームページ">
-	<div class="card">
-	<div style="display: flex; align-items: center; gap: 1.5rem;">
-        <img src="/images/Icon.jpg" alt="プロフィール写真" class="Icon-img" />
-        <div class="X-link">
-            <a href="https://x.com/pensama_314" target="_blank" rel="noopener noreferrer">
-                Twitter (X)
-            </a>
-            </div>
-            <div class="YouTube-link">
-            <a href="https://www.youtube.com/channel/UCgxgIMmvZ-m103FXHFsRO4A" target="_blank" rel="noopener noreferrer">
-                Youtube
-            </a>
+    <section class="box">
+        <div class="box-header"><Icon name="book" /> pensama / README.md</div>
+        <div class="box-body readme">
+            <h2>Hi there 👋 ペン様です</h2>
+            <p>電気通信大学に通う大学1年生。ゲームと漫画と米津玄師が好き。</p>
+            <p class="badges">
+                {badges.map((badge) => (
+                    <span class="badge">
+                        <span>{badge.key}</span>
+                        <span style={`background-color: ${badge.color}`}>{badge.value}</span>
+                    </span>
+                ))}
+            </p>
         </div>
-    </div>
-			<h1>ペン様</h1>
-        </div>
-    <div class="card">
-        <h1>Currently Working On</h1>
-        <p>基本情報技術者試験</p>
-        <p>TOEIC800↑</p>
-        <p>プログラミング言語学習</p>
-    </div>
-    <div class="card">
-        <h1>GitHub Activity</h1>
-        <GitHubActivity user="pensama" />
-    </div>
-    <div class="card">
-        <h1>参加予定のイベント</h1>
-        <ul class="events">
-            {events.map((event) => (
-                <li class="event" data-start={event.start}>
-                    <div class="event-head">
-                        <strong>{event.name}</strong>
-                        <span class="event-date">{formatDate.format(new Date(event.start))} {event.label}</span>
+    </section>
+
+    <section>
+        <h2 class="section-title"><Icon name="pin" /> Currently Working On</h2>
+        <ul class="pinned">
+            {goals.map((goal) => (
+                <li class="pin box">
+                    <div class="pin-head">
+                        <Icon name="repo" />
+                        <span class="pin-name">{goal.name}</span>
+                        <span class="label">Goal</span>
                     </div>
-                    <div class="clock" role="timer" aria-label="カウントダウン">
-                        {['DAYS', 'HRS', 'MIN', 'SEC'].map((unit, i) => (
-                            <>
-                                {i > 0 && <span class="colon" aria-hidden="true">:</span>}
-                                <span class="unit" aria-hidden="true">
-                                    <span class="digits" data-ghost="88">--</span>
-                                    <span class="unit-label">{unit}</span>
-                                </span>
-                            </>
-                        ))}
-                    </div>
-                    <p class="event-status"></p>
+                    <p class="pin-desc">{goal.title}</p>
+                    <p class="pin-meta"><span class="dot" style={`--c: ${goal.color}`}></span>勉強中</p>
                 </li>
             ))}
+            <li class="pin box">
+                <div class="pin-head">
+                    <Icon name="repo" />
+                    <a class="pin-name" href="https://github.com/pensama/my-homepage" target="_blank" rel="noopener noreferrer">my-homepage</a>
+                    <span class="label">Public</span>
+                </div>
+                <p class="pin-desc">このホームページ — 随時更新予定</p>
+                <p class="pin-meta"><span class="dot" style="--c: #ff5a03"></span>Astro</p>
+            </li>
         </ul>
-    </div>
+    </section>
+
+    <section>
+        <h2 class="section-title"><Icon name="clock" /> 参加予定のイベント</h2>
+        <EventCountdown events={events} />
+    </section>
+
+    <section>
+        <GitHubActivity user="pensama" />
+    </section>
 </Layout>
 
-<script>
-    // 日本時間での日付 (YYYY-MM-DD) を比べて「当日かどうか」を判定する
-    const jstDay = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Tokyo' });
-    const pad = (n: number) => String(n).padStart(2, '0');
+<style>
+    .readme h2 {
+        margin: 0 0 16px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--border);
+        font-size: 24px;
+        line-height: 1.25;
+    }
 
-    const events = document.querySelectorAll<HTMLElement>('.event');
+    .readme p {
+        margin: 0;
+    }
 
-    function update() {
-        const now = Date.now();
-        for (const event of events) {
-            const start = Date.parse(event.dataset.start!);
-            const s = Math.ceil((start - now) / 1000);
-            let parts: string[];
-            let label: string;
-            let status = '';
-            if (s > 0) {
-                const [d, h, m, sec] = [Math.floor(s / 86400), Math.floor(s / 3600) % 24, Math.floor(s / 60) % 60, s % 60];
-                parts = [d, h, m, sec].map(pad);
-                label = `あと${d}日${h}時間${m}分${sec}秒`;
-                event.dataset.state = 'upcoming';
-            } else if (jstDay.format(start) === jstDay.format(now)) {
-                parts = ['00', '00', '00', '00'];
-                label = status = '本日開催！';
-                event.dataset.state = 'today';
-            } else {
-                parts = ['--', '--', '--', '--'];
-                label = status = '終了しました';
-                event.dataset.state = 'ended';
-            }
-            // コロンを1秒ごとに点滅させる
-            event.dataset.tick = String(Math.abs(s) % 2);
-            event.querySelectorAll<HTMLElement>('.digits').forEach((el, i) => {
-                el.textContent = parts[i];
-                // 消えているセグメント (薄い「8」) を数字の後ろに敷く
-                el.dataset.ghost = '8'.repeat(parts[i].length);
-            });
-            event.querySelector('.clock')!.setAttribute('aria-label', label);
-            event.querySelector('.event-status')!.textContent = status;
+    .readme .badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 16px;
+    }
+
+    .badge {
+        display: inline-flex;
+        border-radius: 3px;
+        overflow: hidden;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        line-height: 20px;
+        color: #fff;
+    }
+
+    .badge span {
+        padding: 0 6px;
+    }
+
+    .badge span:first-child {
+        background-color: #555;
+    }
+
+    .pinned {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .pin {
+        display: flex;
+        flex-direction: column;
+        padding: 16px;
+    }
+
+    .pin-head {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .pin-head :global(.icon) {
+        color: var(--fg-muted);
+    }
+
+    .pin-name {
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-weight: 700;
+        font-size: 14px;
+        color: var(--accent);
+    }
+
+    .pin-desc {
+        flex: 1;
+        margin: 8px 0 16px;
+        font-size: 13px;
+        color: var(--fg-muted);
+    }
+
+    .pin-meta {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin: 0;
+        font-size: 12px;
+        color: var(--fg-muted);
+    }
+
+    @media (max-width: 767px) {
+        .pinned {
+            grid-template-columns: minmax(0, 1fr);
         }
     }
-
-    update();
-    setInterval(update, 1000);
-</script>
-<style>
-    .card {
-        background-color: #222630;
-        border-radius: 12px;
-        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
-        padding: 2rem;
-    }
-	h1 {
-    font-size: 1.75rem;
-    margin-top: 1rem;
-    margin-bottom: 0;
-}
-	.Icon-img {
-        width: 120px;
-        height: 120px;
-        border-radius: 100%;
-        object-fit: cover;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        flex-shrink: 0;
-    }
-
-/* X (旧Twitter) のリンク設定 */
-.X-link {
-    display: flex;
-    flex-direction: column; /* 縦並びにする */
-    align-items: flex-start; /* ボタンの幅をテキストサイズに合わせる */
-    gap: 0.5rem;
-}
-
-.X-link a {
-    padding: 0.4rem 1rem;
-    border: 1px solid #1D9BF0;
-    border-radius: 999px;
-    color: #1D9BF0;
-    text-decoration: none;
-    font-size: 0.9rem;
-    transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-.X-link a:hover {
-    background-color: #1D9BF0;
-    color: #fff;
-}
-
-/* YouTube のリンク設定 */
-.YouTube-link {
-    display: flex;
-    flex-direction: column; /* 縦並びにする */
-    align-items: flex-start; /* ボタンの幅をテキストサイズに合わせる */
-    gap: 0.5rem;
-}
-
-.YouTube-link a {
-    padding: 0.4rem 1rem;
-    border: 1px solid #FF0000;
-    border-radius: 999px;
-    color: #FF0000;
-    text-decoration: none;
-    font-size: 0.9rem;
-    transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-.YouTube-link a:hover {
-    background-color: #FF0000;
-    color: #fff;
-}
-
-/* イベントのカウントダウン (デジタル時計) */
-@font-face {
-    font-family: "DSEG7 Classic";
-    src: url("/fonts/DSEG7Classic-Bold.woff2") format("woff2");
-    font-weight: 700;
-    font-display: swap;
-}
-
-.events {
-    list-style: none;
-    padding: 0;
-    margin: 1.25rem 0 0;
-    display: flex;
-    flex-direction: column;
-    gap: 1.75rem;
-}
-
-.event {
-    --led: #5ec8ff;
-    --led-glow: rgba(94, 200, 255, 0.55);
-    container-type: inline-size;
-}
-
-.event[data-state="today"] {
-    --led: #f5a623;
-    --led-glow: rgba(245, 166, 35, 0.55);
-}
-
-.event[data-state="ended"] {
-    --led: #6b7280;
-    --led-glow: transparent;
-}
-
-.event-head {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 0.25rem 1rem;
-}
-
-.event-date {
-    font-size: 0.9rem;
-    color: #aab3c5;
-}
-
-.clock {
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    gap: 0.3em;
-    margin-top: 0.6rem;
-    padding: 1.1rem 0.5rem 0.8rem;
-    background-color: #0a0e17;
-    border: 1px solid #2d3340;
-    border-radius: 10px;
-    box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.7);
-    font-size: clamp(1.2rem, 9cqi, 2.4rem);
-    color: var(--led);
-}
-
-.unit {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.digits,
-.colon {
-    font-family: "DSEG7 Classic", monospace;
-    font-weight: 700;
-    line-height: 1;
-    text-shadow: 0 0 8px var(--led-glow);
-}
-
-.digits {
-    position: relative;
-    z-index: 0;
-}
-
-.digits::before {
-    content: attr(data-ghost);
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    opacity: 0.1;
-    text-shadow: none;
-}
-
-.colon {
-    transition: opacity 0.15s ease;
-}
-
-.event[data-state="upcoming"][data-tick="1"] .colon {
-    opacity: 0.25;
-}
-
-.unit-label {
-    font-size: 0.7rem;
-    letter-spacing: 0.15em;
-    color: #7c859a;
-}
-
-.event-status {
-    margin: 0.5rem 0 0;
-    text-align: center;
-    font-weight: 700;
-    color: var(--led);
-}
-
-.event-status:empty {
-    display: none;
-}
 </style>

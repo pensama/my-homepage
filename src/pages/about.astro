@@ -1,119 +1,184 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Icon from '../components/Icon.astro';
+
+const history = [
+    { date: '2007/11/30', text: '誕生' },
+    { date: '2020/3', text: '小学校卒業' },
+    { date: '2023/3', text: '中学校卒業' },
+    { date: '2026/3', text: '高校卒業' },
+    { date: '2026/4', text: '電気通信大学Ⅱ類入学' },
+];
 ---
 
 <Layout title="About | ペン様のホームページ">
-    <div class="card">
-        <div style="display: flex; align-items: center; gap: 1.5rem;">
+    <article class="box">
+        <div class="box-header"><Icon name="book" /> pensama / about.md</div>
+        <div class="box-body markdown">
+            <h2>自己紹介</h2>
 
-        <h1>自己紹介</h1>
-    </div>
-    </div>
+            <h3>略歴</h3>
+            <ol class="timeline">
+                {history.map((item) => (
+                    <li>
+                        <time>{item.date}</time>
+                        <span>{item.text}</span>
+                    </li>
+                ))}
+            </ol>
 
-    <div class="card">
-        <h3>略歴</h3>
-        <p>2007/11/30 誕生</p>
-        <p>2020/3 小学校卒業</p>
-        <p>2023/3 中学校卒業</p>
-        <p>2026/3 高校卒業</p>
-        <p>2026/4 電気通信大学Ⅱ類入学</p>
-    </div>
+            <h3>ハンドルネームの由来</h3>
+            <div class="handle">
+                <img src="/images/handle.jpg" alt="ザビエルの肖像画に描かれた落書き" class="handle-img" />
+                <div>
+                    <p>ザビエルの落書きが由来</p>
+                    <p>
+                        正確に言うとザビエルの落書きから由来してMiiを作成するときにザビエルを参考にして作成し、Nintendo Switchのアカウント名をペンギン由来のペン様にしたこと
+                        <s>(そのMiiは使用しなかった)</s>
+                    </p>
+                </div>
+            </div>
 
-    <div class="card">
-        <h3>ハンドルネームの由来</h3>
-        <img src="/images/handle.jpg" alt="プロフィール写真" class="handle-img" />
-        <p>ザビエルの落書きが由来</p>
-            <p>正確に言うとザビエルの落書きから由来してMiiを作成するときにザビエルを参考にして作成し、Nintendo Switchのアカウント名をペンギン由来のペン様にしたこと
-                <s>(そのMiiは使用しなかった)</s>
-        </p>
-       
-    </div>
-	 
-        <div class="card">
-            <h3>
-                趣味
-            </h3>
-            <ul>
-                <li>
-                    ゲーム
-                </li>
-                <p>私を構成する9つのゲーム</p>
-                <a href="https://my9games.com/s/51d00a7c5a924261" target="_blank">
-                    <img src="/images/my9game.png" alt="プロフィール写真" class="my9game-img" />
-                    </a>
-                     <p>任天堂系のゲームを小さいころからたくさんやっていた</p>
-                     <p>家にパソコンがなかったためPCゲームにはあまりなじみがない</p>
-                     <br>
-                <li>
-                    漫画
-                </li>
-                <p>漫画はアプリで読むタイプだけど、バイトをしてお金に余裕ができ始めた今は紙で集めたい欲がある</p>
-                <p>王道の人気作も結構読むが量産型のなろう系も頭を使わず読めるので好き<s>(漫画アプリがたくさん入っているせいでなろう系は新しい漫画を読んでるのか同じ漫画を内容を忘れて読んでるのかわからなくなる時がある)</s></p>
-                <p>ジャンルは結構幅広く見るけどグロっぽいのは少し抵抗あり(十字架のろくにん等)</p>
-                <br>
-                <li>
-                    音楽
-                </li>
-                <p>米津玄師を主に聴く、サカナクションも有名な奴は聴いてる。</p>
-                <p>BUMPとかRADのような10年代の邦ロックを開拓していきたい</p>
-            </ul>
+            <h3>趣味</h3>
+
+            <h4>ゲーム</h4>
+            <p>私を構成する9つのゲーム</p>
+            <a class="my9game" href="https://my9games.com/s/51d00a7c5a924261" target="_blank" rel="noopener noreferrer">
+                <img
+                    src="/images/my9game.png"
+                    alt="私を構成する9つのゲーム: 妖怪ウォッチバスターズ、Minecraft、スプラトゥーン3、モンスターハンターライズ、ゼルダの伝説 ティアーズ オブ ザ キングダム、ペルソナ5 ザ・ロイヤル、ASTRONEER、レゴシティ アンダーカバー、The Wonderful 101"
+                />
+            </a>
+            <p>任天堂系のゲームを小さいころからたくさんやっていた</p>
+            <p>家にパソコンがなかったためPCゲームにはあまりなじみがない</p>
+
+            <h4>漫画</h4>
+            <p>漫画はアプリで読むタイプだけど、バイトをしてお金に余裕ができ始めた今は紙で集めたい欲がある</p>
+            <p>王道の人気作も結構読むが量産型のなろう系も頭を使わず読めるので好き<s>(漫画アプリがたくさん入っているせいでなろう系は新しい漫画を読んでるのか同じ漫画を内容を忘れて読んでるのかわからなくなる時がある)</s></p>
+            <p>ジャンルは結構幅広く見るけどグロっぽいのは少し抵抗あり(十字架のろくにん等)</p>
+
+            <h4>音楽</h4>
+            <p>米津玄師を主に聴く、サカナクションも有名な奴は聴いてる。</p>
+            <p>BUMPとかRADのような10年代の邦ロックを開拓していきたい</p>
         </div>
+    </article>
 </Layout>
 
 <style>
-    .card {
-        background-color: #222630;
-        border-radius: 12px;
-        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
-        padding: 2rem;
+    /* GitHub の Markdown 表示風 */
+    .markdown h2 {
+        margin: 0 0 16px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--border);
+        font-size: 24px;
+        line-height: 1.25;
     }
 
-    .Icon-img {
-        width: 120px;
-        height: 120px;
-        border-radius: 100%;
-        object-fit: cover;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        flex-shrink: 0;
+    .markdown h3 {
+        margin: 32px 0 16px;
+        padding-bottom: 6px;
+        border-bottom: 1px solid var(--border);
+        font-size: 20px;
+        line-height: 1.25;
     }
+
+    .markdown h4 {
+        margin: 24px 0 8px;
+        font-size: 16px;
+    }
+
+    .markdown p {
+        margin: 0 0 8px;
+    }
+
+    .markdown s {
+        color: var(--fg-muted);
+    }
+
+    /* 略歴は GitHub のコミット履歴風のタイムラインにする */
+    .timeline {
+        list-style: none;
+        margin: 0;
+        padding: 0 0 0 4px;
+    }
+
+    .timeline li {
+        position: relative;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px 16px;
+        padding: 0 0 16px 24px;
+        border-left: 2px solid var(--border);
+    }
+
+    .timeline li:last-child {
+        padding-bottom: 0;
+        border-left-color: transparent;
+    }
+
+    .timeline li::before {
+        content: "";
+        position: absolute;
+        top: 6px;
+        left: -7px;
+        width: 12px;
+        height: 12px;
+        border: 2px solid var(--fg-muted);
+        border-radius: 50%;
+        background-color: var(--bg);
+    }
+
+    .timeline li:last-child::before {
+        border-color: var(--success);
+        background-color: var(--success);
+    }
+
+    .timeline time {
+        min-width: 7em;
+        font-family: var(--font-mono);
+        font-size: 14px;
+        color: var(--fg-muted);
+    }
+
+    .handle {
+        display: flex;
+        align-items: flex-start;
+        gap: 24px;
+    }
+
     .handle-img {
+        flex-shrink: 0;
         width: 120px;
         height: 120px;
-        border-radius: 100%;
+        border-radius: 50%;
+        border: 1px solid var(--border);
         object-fit: cover;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
-    .my9game-img {
+
+    .my9game {
+        display: inline-block;
+        margin: 4px 0 12px;
+        border-radius: 6px;
+    }
+
+    .my9game img {
+        display: block;
         width: 170px;
-        height: 200px;
-        object-fit: contain;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        border: 3px solid transparent; 
-    box-sizing: border-box;
-    transition: transform 0.2s ease, border-color 0.2s ease;
-    }
-    
-    .my9game-img:hover {
-    border-color: #4a90d9;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); 
-    transform: translateY(-4px);
-}
-    h1 {
-        font-size: 1.75rem;
-        margin-top: 1rem;
-        margin-bottom: 0;
+        height: auto;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        transition: transform 0.2s ease, border-color 0.2s ease;
     }
 
-    h3 {
-        font-size: 1.1rem;
-        margin-top: 0;
-        margin-bottom: 0.5rem;
+    .my9game:hover img {
+        border-color: var(--accent);
+        transform: translateY(-4px);
     }
 
-    p {
-        margin: 0.3rem 0;
-        line-height: 180%;
-
+    @media (max-width: 767px) {
+        .handle {
+            flex-direction: column;
+            gap: 12px;
+        }
     }
-
 </style>
