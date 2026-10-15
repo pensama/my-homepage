@@ -63,6 +63,14 @@ const current = Astro.url.pathname.replace(/\/$/, '') || '/';
 </html>
 
 <style is:global>
+    /* デジタル時計風の7セグメント数字 (DSEG, SIL Open Font License 1.1) */
+    @font-face {
+        font-family: "DSEG7 Classic";
+        src: url("/fonts/DSEG7Classic-Bold.woff2") format("woff2");
+        font-weight: 700;
+        font-display: swap;
+    }
+
     /* GitHub のダークテーマに合わせた色 */
     :root {
         --bg: #0d1117;
@@ -75,6 +83,7 @@ const current = Astro.url.pathname.replace(/\/$/, '') || '/';
         --success: #3fb950;
         --attention: #d29922;
         --font-mono: "M PLUS 1 Code", ui-monospace, monospace;
+        --font-7seg: "DSEG7 Classic", monospace;
         color-scheme: dark;
     }
 

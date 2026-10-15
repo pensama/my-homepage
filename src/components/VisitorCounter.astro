@@ -1,0 +1,147 @@
+---
+// 昔ながらのアクセスカウンター「あなたは ○ 人目の訪問者です」
+// 番号は /api/visit (src/pages/api/visit.ts) が数える。1人1回にするため、
+// 最初にもらった番号をブラウザに覚えておき、2回目からはそれを表示する
+---
+
+<div class="counter-wrap">
+    <p class="counter" data-state="loading">
+        あなたは
+        <span class="sr-only counter-number"></span>
+        <span class="counter-digits" aria-hidden="true">
+            {[...'------'].map((char) => <span class="counter-digit" data-ghost="8">{char}</span>)}
+        </span>
+        人目の訪問者です
+    </p>
+    <p class="kiriban" hidden>🎉 キリ番おめでとうございます！</p>
+</div>
+
+<script>
+    const KEY = 'visitor-number';
+    const DIGITS = 6;
+
+    const wrap = document.querySelector<HTMLElement>('.counter-wrap');
+    if (wrap) {
+        const counter = wrap.querySelector<HTMLElement>('.counter')!;
+        getNumber()
+            .then((n) => {
+                if (n === null) return;
+                const text = String(n).padStart(DIGITS, '0');
+                const digits = [...text].map((char) => {
+                    const span = document.createElement('span');
+                    span.className = 'counter-digit';
+                    span.dataset.ghost = '8';
+                    span.textContent = char;
+                    return span;
+                });
+                counter.querySelector('.counter-digits')!.replaceChildren(...digits);
+                counter.querySelector('.counter-number')!.textContent = String(n);
+                counter.dataset.state = 'ready';
+                // キリ番: 100, 200, … や 111, 777, 1111 のようなぞろ目
+                if (n >= 100 && (n % 100 === 0 || /^(\d)\1+$/.test(String(n)))) {
+                    wrap.querySelector<HTMLElement>('.kiriban')!.hidden = false;
+                }
+            })
+            .catch(() => {
+                counter.dataset.state = 'error';
+                counter.textContent = '訪問者カウンターを読み込めませんでした';
+            });
+    }
+
+    // 1人1回: 前にもらった番号があればそれを使い、なければ数えてもらって覚えておく
+    async function getNumber(): Promise<number | null> {
+        const saved = Number(load());
+        if (saved > 0) return saved;
+        const res = await fetch('/api/visit', { method: 'POST' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        // 検索エンジンのクローラーなど、数えない相手には番号が返ってこない
+        if (res.status === 204) return null;
+        const { number } = (await res.json()) as { number: number };
+        save(String(number));
+        return number;
+    }
+
+    // localStorage が使えないブラウザ (一部のプライベートモードなど) でも表示はする
+    function load() {
+        try {
+            return localStorage.getItem(KEY);
+        } catch {
+            return null;
+        }
+    }
+
+    function save(value: string) {
+        try {
+            localStorage.setItem(KEY, value);
+        } catch {
+            // 覚えておけないときは、次に来たときにまた数える
+        }
+    }
+</script>
+
+<style>
+    .counter {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px 8px;
+        margin: 0;
+        font-size: 14px;
+        color: var(--fg-muted);
+    }
+
+    .counter[data-state="error"] {
+        font-size: 13px;
+    }
+
+    .counter-digits {
+        display: inline-flex;
+        gap: 2px;
+    }
+
+    /* 1桁ずつ黒い枠に入れた、昔のカウンター風の数字 */
+    .counter :global(.counter-digit) {
+        position: relative;
+        z-index: 0;
+        padding: 5px 4px;
+        background-color: var(--bg-inset);
+        border: 1px solid var(--border);
+        border-radius: 3px;
+        font-family: var(--font-7seg);
+        font-size: 16px;
+        font-weight: 700;
+        line-height: 1;
+        color: var(--success);
+        text-shadow: 0 0 6px rgba(63, 185, 80, 0.5);
+    }
+
+    /* 消えているセグメント (薄い「8」) を数字の後ろに敷く */
+    .counter :global(.counter-digit)::before {
+        content: attr(data-ghost);
+        position: absolute;
+        inset: 5px 4px;
+        z-index: -1;
+        opacity: 0.1;
+        text-shadow: none;
+    }
+
+    .counter[data-state="loading"] :global(.counter-digit) {
+        color: var(--fg-muted);
+        text-shadow: none;
+    }
+
+    .kiriban {
+        margin: 8px 0 0;
+        font-weight: 700;
+        color: var(--attention);
+    }
+
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+    }
+</style>

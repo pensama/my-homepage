@@ -3,6 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import EventCountdown from '../components/EventCountdown.astro';
 import GitHubActivity from '../components/GitHubActivity.astro';
 import Icon from '../components/Icon.astro';
+import VisitorCounter from '../components/VisitorCounter.astro';
 
 // start は日本時間(+09:00)で書く。label は start が何の時刻か (開演・開場など)
 const events = [
@@ -39,6 +40,9 @@ const badges = [
                     </span>
                 ))}
             </p>
+            <div class="visitors">
+                <VisitorCounter />
+            </div>
         </div>
     </section>
 
@@ -114,6 +118,12 @@ const badges = [
 
     .badge span:first-child {
         background-color: #555;
+    }
+
+    .visitors {
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid var(--border);
     }
 
     .pinned {
