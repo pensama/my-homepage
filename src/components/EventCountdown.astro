@@ -91,13 +91,6 @@ const formatDate = new Intl.DateTimeFormat('ja-JP', {
 </script>
 
 <style>
-    @font-face {
-        font-family: "DSEG7 Classic";
-        src: url("/fonts/DSEG7Classic-Bold.woff2") format("woff2");
-        font-weight: 700;
-        font-display: swap;
-    }
-
     .events {
         list-style: none;
         margin: 0;
@@ -172,7 +165,7 @@ const formatDate = new Intl.DateTimeFormat('ja-JP', {
 
     .digits,
     .colon {
-        font-family: "DSEG7 Classic", monospace;
+        font-family: var(--font-7seg);
         font-weight: 700;
         line-height: 1;
         text-shadow: 0 0 8px var(--led-glow);
