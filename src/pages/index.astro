@@ -3,6 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import EventCountdown from '../components/EventCountdown.astro';
 import GitHubActivity from '../components/GitHubActivity.astro';
 import Icon from '../components/Icon.astro';
+import Languages from '../components/Languages.astro';
 import VisitorCounter from '../components/VisitorCounter.astro';
 
 // start は日本時間(+09:00)で書く。label は start が何の時刻か (開演・開場など)
@@ -16,6 +17,13 @@ const goals = [
     { name: 'fe-exam', title: '基本情報技術者試験', color: '#3fb950' },
     { name: 'toeic-800', title: 'TOEIC800↑', color: '#d29922' },
     { name: 'learn-programming', title: 'プログラミング言語学習', color: '#4493f8' },
+];
+
+// 扱える・勉強中のプログラミング言語。新しく始めたら1行足し、扱えるようになったら status を '扱える' に変える
+// 色の丸と拡張子は名前から自動で付く (付かない言語は color: '#rrggbb' と ext: '.xxx' を書き足す)
+const languages = [
+    { name: 'C#', status: '勉強中' },
+    { name: 'C++', status: '勉強中' },
 ];
 
 const badges = [
@@ -70,6 +78,11 @@ const badges = [
                 <p class="pin-meta"><span class="dot" style="--c: #ff5a03"></span>Astro</p>
             </li>
         </ul>
+    </section>
+
+    <section>
+        <h2 class="section-title"><Icon name="code" /> Languages</h2>
+        <Languages languages={languages} />
     </section>
 
     <section>
