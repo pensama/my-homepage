@@ -42,9 +42,12 @@
                     wrap.querySelector<HTMLElement>('.kiriban')!.hidden = false;
                 }
             })
-            .catch(() => {
+            .catch((error: unknown) => {
                 counter.dataset.state = 'error';
-                counter.textContent = '訪問者カウンターを読み込めませんでした';
+                counter.textContent =
+                    error instanceof Error && error.message === 'not-configured'
+                        ? '訪問者カウンターは準備中です'
+                        : '訪問者カウンターを読み込めませんでした';
             });
     }
 
@@ -53,7 +56,11 @@
         const saved = Number(load());
         if (saved > 0) return saved;
         const res = await fetch('/api/visit', { method: 'POST' });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        if (!res.ok) {
+            // データベースがまだつながっていないときは「準備中」と出す (それ以外の失敗と見分けるため)
+            const body = (await res.json().catch(() => null)) as { error?: string } | null;
+            throw new Error(body?.error === 'not-configured' ? 'not-configured' : `HTTP ${res.status}`);
+        }
         // 検索エンジンのクローラーなど、数えない相手には番号が返ってこない
         if (res.status === 204) return null;
         const { number } = (await res.json()) as { number: number };
