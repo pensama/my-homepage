@@ -1,69 +1,72 @@
 ---
-// 扱える・勉強中のプログラミング言語を、GitHub の言語表示のように色の丸付きで並べる
-// 色は GitHub Linguist の languages.yml (MIT License, Copyright (c) 2017 GitHub, Inc.) の値。拡張子は代表的なもの
-const known: Record<string, { color: string; ext: string }> = {
+// 扱える・勉強中のプログラミング言語を、公式ロゴ付きで並べる
+// - ロゴ (icon) は Devicon (MIT License, Copyright (c) 2015 konpa) の各言語のロゴ。public/icons/languages/ に置いている
+//   dark: true は暗い背景で沈む黒っぽいロゴで、表示するときに明るさだけ反転する
+// - ロゴがない言語は、GitHub Linguist の languages.yml (MIT License, Copyright (c) 2017 GitHub, Inc.) の色の丸を出す
+// - 拡張子は代表的なもの
+const known: Record<string, { color: string; ext: string; icon?: string; dark?: boolean }> = {
     'assembly': { color: '#6e4c13', ext: '.asm' },
-    'astro': { color: '#ff5a03', ext: '.astro' },
-    'c': { color: '#555555', ext: '.c' },
-    'c#': { color: '#7355dd', ext: '.cs' },
-    'c++': { color: '#f34b7d', ext: '.cpp' },
-    'clojure': { color: '#db5855', ext: '.clj' },
+    'astro': { color: '#ff5a03', ext: '.astro', icon: 'astro', dark: true },
+    'c': { color: '#555555', ext: '.c', icon: 'c' },
+    'c#': { color: '#7355dd', ext: '.cs', icon: 'csharp' },
+    'c++': { color: '#f34b7d', ext: '.cpp', icon: 'cplusplus' },
+    'clojure': { color: '#db5855', ext: '.clj', icon: 'clojure' },
     'common lisp': { color: '#3fb68b', ext: '.lisp' },
-    'crystal': { color: '#000100', ext: '.cr' },
-    'css': { color: '#663399', ext: '.css' },
+    'crystal': { color: '#000100', ext: '.cr', icon: 'crystal', dark: true },
+    'css': { color: '#663399', ext: '.css', icon: 'css3' },
     'cuda': { color: '#3a4e3a', ext: '.cu' },
-    'dart': { color: '#00b4ab', ext: '.dart' },
-    'elixir': { color: '#6e4a7e', ext: '.ex' },
-    'elm': { color: '#60b5cc', ext: '.elm' },
-    'erlang': { color: '#b83998', ext: '.erl' },
-    'f#': { color: '#b845fc', ext: '.fs' },
-    'fortran': { color: '#4d41b1', ext: '.f' },
+    'dart': { color: '#00b4ab', ext: '.dart', icon: 'dart' },
+    'elixir': { color: '#6e4a7e', ext: '.ex', icon: 'elixir' },
+    'elm': { color: '#60b5cc', ext: '.elm', icon: 'elm' },
+    'erlang': { color: '#b83998', ext: '.erl', icon: 'erlang' },
+    'f#': { color: '#b845fc', ext: '.fs', icon: 'fsharp' },
+    'fortran': { color: '#4d41b1', ext: '.f', icon: 'fortran' },
     'gdscript': { color: '#355570', ext: '.gd' },
-    'gleam': { color: '#ffaff3', ext: '.gleam' },
+    'gleam': { color: '#ffaff3', ext: '.gleam', icon: 'gleam' },
     'glsl': { color: '#5686a5', ext: '.glsl' },
-    'go': { color: '#00add8', ext: '.go' },
-    'haskell': { color: '#5e5086', ext: '.hs' },
+    'go': { color: '#00add8', ext: '.go', icon: 'go' },
+    'haskell': { color: '#5e5086', ext: '.hs', icon: 'haskell' },
     'hlsl': { color: '#aace60', ext: '.hlsl' },
-    'html': { color: '#e34c26', ext: '.html' },
-    'java': { color: '#b07219', ext: '.java' },
-    'javascript': { color: '#f1e05a', ext: '.js' },
-    'julia': { color: '#a270ba', ext: '.jl' },
-    'kotlin': { color: '#a97bff', ext: '.kt' },
-    'lua': { color: '#000080', ext: '.lua' },
-    'matlab': { color: '#e16737', ext: '.m' },
+    'html': { color: '#e34c26', ext: '.html', icon: 'html5' },
+    'java': { color: '#b07219', ext: '.java', icon: 'java' },
+    'javascript': { color: '#f1e05a', ext: '.js', icon: 'javascript' },
+    'julia': { color: '#a270ba', ext: '.jl', icon: 'julia' },
+    'kotlin': { color: '#a97bff', ext: '.kt', icon: 'kotlin' },
+    'lua': { color: '#000080', ext: '.lua', icon: 'lua' },
+    'matlab': { color: '#e16737', ext: '.m', icon: 'matlab' },
     'mojo': { color: '#ff4c1f', ext: '.mojo' },
-    'nim': { color: '#ffc200', ext: '.nim' },
-    'objective-c': { color: '#438eff', ext: '.m' },
-    'ocaml': { color: '#ef7a08', ext: '.ml' },
+    'nim': { color: '#ffc200', ext: '.nim', icon: 'nim' },
+    'objective-c': { color: '#438eff', ext: '.m', icon: 'objectivec', dark: true },
+    'ocaml': { color: '#ef7a08', ext: '.ml', icon: 'ocaml' },
     'pascal': { color: '#e3f171', ext: '.pas' },
-    'perl': { color: '#0298c3', ext: '.pl' },
-    'php': { color: '#4f5d95', ext: '.php' },
-    'powershell': { color: '#012456', ext: '.ps1' },
-    'processing': { color: '#0096d8', ext: '.pde' },
-    'prolog': { color: '#74283c', ext: '.pl' },
-    'python': { color: '#3572a5', ext: '.py' },
-    'r': { color: '#198ce7', ext: '.r' },
-    'racket': { color: '#3c5caa', ext: '.rkt' },
-    'ruby': { color: '#701516', ext: '.rb' },
-    'rust': { color: '#dea584', ext: '.rs' },
-    'scala': { color: '#c22d40', ext: '.scala' },
+    'perl': { color: '#0298c3', ext: '.pl', icon: 'perl' },
+    'php': { color: '#4f5d95', ext: '.php', icon: 'php' },
+    'powershell': { color: '#012456', ext: '.ps1', icon: 'powershell' },
+    'processing': { color: '#0096d8', ext: '.pde', icon: 'processing' },
+    'prolog': { color: '#74283c', ext: '.pl', icon: 'prolog' },
+    'python': { color: '#3572a5', ext: '.py', icon: 'python' },
+    'r': { color: '#198ce7', ext: '.r', icon: 'r' },
+    'racket': { color: '#3c5caa', ext: '.rkt', icon: 'racket' },
+    'ruby': { color: '#701516', ext: '.rb', icon: 'ruby' },
+    'rust': { color: '#dea584', ext: '.rs', icon: 'rust', dark: true },
+    'scala': { color: '#c22d40', ext: '.scala', icon: 'scala' },
     'scheme': { color: '#1e4aec', ext: '.scm' },
-    'shell': { color: '#89e051', ext: '.sh' },
-    'solidity': { color: '#aa6746', ext: '.sol' },
+    'shell': { color: '#89e051', ext: '.sh', icon: 'bash', dark: true },
+    'solidity': { color: '#aa6746', ext: '.sol', icon: 'solidity', dark: true },
     'sql': { color: '#e38c00', ext: '.sql' },
-    'svelte': { color: '#ff3e00', ext: '.svelte' },
-    'swift': { color: '#f05138', ext: '.swift' },
-    'typescript': { color: '#3178c6', ext: '.ts' },
+    'svelte': { color: '#ff3e00', ext: '.svelte', icon: 'svelte' },
+    'swift': { color: '#f05138', ext: '.swift', icon: 'swift' },
+    'typescript': { color: '#3178c6', ext: '.ts', icon: 'typescript' },
     'verilog': { color: '#b2b7f8', ext: '.v' },
     'vhdl': { color: '#adb2cb', ext: '.vhdl' },
-    'visual basic .net': { color: '#945db7', ext: '.vb' },
-    'vue': { color: '#41b883', ext: '.vue' },
-    'zig': { color: '#ec915c', ext: '.zig' },
+    'visual basic .net': { color: '#945db7', ext: '.vb', icon: 'visualbasic' },
+    'vue': { color: '#41b883', ext: '.vue', icon: 'vuejs' },
+    'zig': { color: '#ec915c', ext: '.zig', icon: 'zig' },
 };
 
 interface Props {
-    // status は '扱える' か '勉強中'。color と ext は、上の一覧にない言語のときだけ書けばよい
-    languages: { name: string; status: string; color?: string; ext?: string }[];
+    // status は '扱える' か '勉強中'。color / ext / icon (ロゴ画像のパス) は、上の一覧にない言語のときだけ書けばよい
+    languages: { name: string; status: string; color?: string; ext?: string; icon?: string }[];
 }
 
 const { languages } = Astro.props;
@@ -87,9 +90,14 @@ const groups = [...new Set(languages.map((lang) => lang.status))]
                 {group.items.map((lang) => {
                     const info = known[lang.name.toLowerCase()];
                     const ext = lang.ext ?? info?.ext;
+                    const icon = lang.icon ?? (info?.icon && `/icons/languages/${info.icon}.svg`);
                     return (
                         <li class="chip">
-                            <span class="dot" style={`--c: ${lang.color ?? info?.color ?? '#8b949e'}`}></span>
+                            {icon ? (
+                                <img class:list={['logo', { dark: !lang.icon && info?.dark }]} src={icon} width="18" height="18" alt="" />
+                            ) : (
+                                <span class="dot" style={`--c: ${lang.color ?? info?.color ?? '#8b949e'}`}></span>
+                            )}
                             {lang.name}
                             {ext && <span class="ext" aria-hidden="true">{ext}</span>}
                         </li>
@@ -161,6 +169,16 @@ const groups = [...new Set(languages.map((lang) => lang.status))]
         background-color: var(--bg-muted);
         font-size: 14px;
         line-height: 20px;
+    }
+
+    .logo {
+        flex-shrink: 0;
+        display: block;
+    }
+
+    /* 黒っぽいロゴは、色合いを保ったまま明るさだけ反転して暗い背景でも見えるようにする */
+    .logo.dark {
+        filter: invert(1) hue-rotate(180deg);
     }
 
     /* 暗い色 (Lua の紺など) でも丸が背景に埋もれないように縁を付ける */
