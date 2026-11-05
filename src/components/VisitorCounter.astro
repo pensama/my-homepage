@@ -1,17 +1,26 @@
 ---
-// 昔ながらのアクセスカウンター「あなたは ○ 人目の訪問者です」
-// 番号は /api/visit (src/pages/api/visit.ts) が数える。1人1回にするため、
-// 最初にもらった番号をブラウザに覚えておき、2回目からはそれを表示する
+// 昔ながらのアクセスカウンター「あなたは ○ 人目の訪問者です」と「累計 ○ 人」
+// 数は /api/visit (src/pages/api/visit.ts) が数える。1人1回にするため、
+// 最初にもらった番号をブラウザに覚えておき、2回目からはそれを表示して累計だけ聞く
+const placeholder = [...'------'];
 ---
 
 <div class="counter-wrap">
-    <p class="counter" data-state="loading">
-        あなたは
+    <p class="counter" data-kind="mine" data-state="loading">
+        <span class="counter-label">あなたは</span>
         <span class="sr-only counter-number"></span>
         <span class="counter-digits" aria-hidden="true">
-            {[...'------'].map((char) => <span class="counter-digit" data-ghost="8">{char}</span>)}
+            {placeholder.map((char) => <span class="counter-digit" data-ghost="8">{char}</span>)}
         </span>
         人目の訪問者です
+    </p>
+    <p class="counter" data-kind="total" data-state="loading">
+        <span class="counter-label">累計</span>
+        <span class="sr-only counter-number"></span>
+        <span class="counter-digits" aria-hidden="true">
+            {placeholder.map((char) => <span class="counter-digit" data-ghost="8">{char}</span>)}
+        </span>
+        人
     </p>
     <p class="kiriban" hidden>🎉 キリ番おめでとうございます！</p>
 </div>
@@ -20,52 +29,81 @@
     const KEY = 'visitor-number';
     const DIGITS = 6;
 
+    type Body = { number?: number; total?: number; error?: string };
+
     const wrap = document.querySelector<HTMLElement>('.counter-wrap');
     if (wrap) {
-        const counter = wrap.querySelector<HTMLElement>('.counter')!;
-        getNumber()
-            .then((n) => {
-                if (n === null) return;
-                const text = String(n).padStart(DIGITS, '0');
-                const digits = [...text].map((char) => {
-                    const span = document.createElement('span');
-                    span.className = 'counter-digit';
-                    span.dataset.ghost = '8';
-                    span.textContent = char;
-                    return span;
-                });
-                counter.querySelector('.counter-digits')!.replaceChildren(...digits);
-                counter.querySelector('.counter-number')!.textContent = String(n);
-                counter.dataset.state = 'ready';
+        const mine = wrap.querySelector<HTMLElement>('.counter[data-kind="mine"]')!;
+        const total = wrap.querySelector<HTMLElement>('.counter[data-kind="total"]')!;
+        getCounts()
+            .then((counts) => {
+                if (counts === null) return;
+                show(mine, counts.number);
+                if (counts.total === null) {
+                    total.hidden = true;
+                } else {
+                    show(total, counts.total);
+                }
                 // キリ番: 100, 200, … や 111, 777, 1111 のようなぞろ目
+                const n = counts.number;
                 if (n >= 100 && (n % 100 === 0 || /^(\d)\1+$/.test(String(n)))) {
                     wrap.querySelector<HTMLElement>('.kiriban')!.hidden = false;
                 }
             })
             .catch((error: unknown) => {
-                counter.dataset.state = 'error';
-                counter.textContent =
+                mine.dataset.state = 'error';
+                mine.textContent =
                     error instanceof Error && error.message === 'not-configured'
                         ? '訪問者カウンターは準備中です'
                         : '訪問者カウンターを読み込めませんでした';
+                total.hidden = true;
             });
     }
 
-    // 1人1回: 前にもらった番号があればそれを使い、なければ数えてもらって覚えておく
-    async function getNumber(): Promise<number | null> {
+    // 数字を1桁ずつ枠に入れて表示する
+    function show(counter: HTMLElement, n: number) {
+        const digits = [...String(n).padStart(DIGITS, '0')].map((char) => {
+            const span = document.createElement('span');
+            span.className = 'counter-digit';
+            span.dataset.ghost = '8';
+            span.textContent = char;
+            return span;
+        });
+        counter.querySelector('.counter-digits')!.replaceChildren(...digits);
+        counter.querySelector('.counter-number')!.textContent = String(n);
+        counter.dataset.state = 'ready';
+    }
+
+    // 自分の番号と累計を返す (累計が取れなかったときは total が null)
+    // 1人1回: 番号を覚えていれば累計だけ聞き (数は増やさない)、なければ数えてもらって番号を覚えておく
+    async function getCounts(): Promise<{ number: number; total: number | null } | null> {
         const saved = Number(load());
-        if (saved > 0) return saved;
-        const res = await fetch('/api/visit', { method: 'POST' });
+        if (saved > 0) {
+            const total = await request('GET').then(
+                (body) => body?.total ?? null,
+                () => null,
+            );
+            // データベースを作り直したなどで、覚えている番号が累計より大きいときは数え直す
+            if (total === null || saved <= total) return { number: saved, total };
+        }
+        const body = await request('POST');
+        // 検索エンジンのクローラーなど、数えない相手には番号が返ってこない
+        if (body?.number === undefined) return null;
+        save(String(body.number));
+        // 数えてもらった直後は、自分の番号がそのまま今の累計
+        return { number: body.number, total: body.total ?? body.number };
+    }
+
+    // /api/visit を呼ぶ。GET は累計を聞くだけ、POST は数を1つ増やす
+    async function request(method: 'GET' | 'POST'): Promise<Body | null> {
+        const res = await fetch('/api/visit', { method });
         if (!res.ok) {
             // データベースがまだつながっていないときは「準備中」と出す (それ以外の失敗と見分けるため)
-            const body = (await res.json().catch(() => null)) as { error?: string } | null;
+            const body = (await res.json().catch(() => null)) as Body | null;
             throw new Error(body?.error === 'not-configured' ? 'not-configured' : `HTTP ${res.status}`);
         }
-        // 検索エンジンのクローラーなど、数えない相手には番号が返ってこない
         if (res.status === 204) return null;
-        const { number } = (await res.json()) as { number: number };
-        save(String(number));
-        return number;
+        return (await res.json()) as Body;
     }
 
     // localStorage が使えないブラウザ (一部のプライベートモードなど) でも表示はする
@@ -87,6 +125,12 @@
 </script>
 
 <style>
+    .counter-wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
     .counter {
         display: flex;
         flex-wrap: wrap;
@@ -97,8 +141,18 @@
         color: var(--fg-muted);
     }
 
+    /* display: flex より hidden を優先して、累計が取れないときは行ごと隠す */
+    .counter[hidden] {
+        display: none;
+    }
+
     .counter[data-state="error"] {
         font-size: 13px;
+    }
+
+    /* 「あなたは」と「累計」の幅をそろえて、上下の数字の位置を合わせる */
+    .counter-label {
+        min-width: 4em;
     }
 
     .counter-digits {
@@ -138,9 +192,26 @@
     }
 
     .kiriban {
-        margin: 8px 0 0;
+        margin: 0;
         font-weight: 700;
         color: var(--attention);
+    }
+
+    /* スマホでは少し小さくして「人目の訪問者です」まで1行に収める */
+    @media (max-width: 480px) {
+        .counter {
+            gap: 6px;
+            font-size: 13px;
+        }
+
+        .counter :global(.counter-digit) {
+            padding: 4px 3px;
+            font-size: 13px;
+        }
+
+        .counter :global(.counter-digit)::before {
+            inset: 4px 3px;
+        }
     }
 
     .sr-only {
